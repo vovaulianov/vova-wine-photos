@@ -1,0 +1,88 @@
+/* photos.css — the photo version. The rules of the text version, plus photos: one font, 19 px on a 28 px line,
+   black on white, links the colour of the text with a 1 px black underline. */
+html, body { margin: 0; background: #fff; }
+body { font-family: "ABC Areal", sans-serif; font-size: 19px; line-height: 28px; color: #000; }
+p { margin: 0; }
+a { color: inherit; text-decoration: underline; text-decoration-color: #000; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+a[target] { font-style: italic; }                      /* links that leave the page, as on the text version */
+img { display: block; }
+
+/* Text lines up with the photos on the whole screen: it starts where an upright photo starts (such a photo is
+   as tall as the screen less 64 px, and three quarters of that wide), never closer than 16 px to the edge. A line
+   holds about 67 characters, fewer if the photo is narrower than that. Vertically: a third down on a desktop,
+   a quarter on a tablet, as on the text version. */
+:root { --photo: min(100vw, calc((100vh - 64px) * 0.75)); --edge: max(16px, calc((100vw - var(--photo)) / 2)); }
+@supports (height: 100svh) { :root { --photo: min(100vw, calc((100svh - 64px) * 0.75)); } }
+.text, .end { padding: 33.3333vh 16px 33.3333vh var(--edge); }
+.text + .text { padding-top: 0; }
+.text p, .end p { max-width: min(51ch, var(--photo)); }
+.text p + p, .end p + p { margin-top: 28px; }
+
+/* A section that moves with the scroll is tall, and inside it a stage stays on screen while it passes. */
+.pin { position: relative; }
+.stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+
+/* The title: its lines take turns in one place, each replacing the one before at once. */
+.title .line { position: absolute; left: var(--edge); top: 33.3333%; right: 16px; max-width: min(51ch, var(--photo)); visibility: hidden; }
+.title .line.on { visibility: visible; }
+/* The arrow at the bottom, on the text's left edge: there's more below. It goes once the first line has changed. */
+.title .arrow { position: absolute; left: var(--edge); bottom: 32px; width: 14px; height: 19px; color: #000; }
+.title .arrow svg { display: block; }
+.title .arrow.gone { visibility: hidden; }
+
+/* Photos on the whole screen, one at a time, as tall as the screen less 32 px above and below (on a screen
+   narrower than the photo, as wide as it), so nothing is cropped or enlarged. */
+.full img { position: absolute; top: 32px; left: 0; width: 100%; height: calc(100% - 64px); object-fit: contain; visibility: hidden; }
+.full img.on { visibility: visible; }
+
+/* A video, the way a full-screen photo is; it plays while it stands still. The only control: the sound. */
+.video .stage { display: flex; align-items: center; justify-content: center; }
+.video .clip { position: relative; }
+.video video { display: block; width: 100%; height: 100%; object-fit: contain; }
+.video .sound { position: absolute; right: 8px; bottom: 8px; width: 40px; height: 40px; padding: 8px; border: 0; background: none; color: #fff; cursor: pointer; -webkit-appearance: none; appearance: none; filter: drop-shadow(0 0 2px rgba(0, 0, 0, .6)); }
+.video .sound svg { display: block; }
+
+/* A pair: two photos side by side, replaced in turn as you scroll. */
+.duo-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; width: min(84vw, 120vh); aspect-ratio: 3 / 2; }
+.duo .slot { position: relative; overflow: hidden; }
+.duo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; visibility: hidden; }
+.duo img.on { visibility: visible; }
+
+/* Half and half: on the left a photo stays and changes; on the right a column of photos goes by. */
+.split { display: grid; grid-template-columns: 1fr 1fr; }
+.split .left .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; visibility: hidden; }
+.split .left .stage img.on { visibility: visible; }
+.split .right { display: grid; grid-template-columns: 1fr 1fr; align-content: start; }
+.split .right img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; }
+.split .right .phone-only { display: none; }
+
+/* The wall: every other photo, in the order it was taken. */
+.wall { display: grid; grid-template-columns: repeat(6, 1fr); }
+.wall img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; }
+
+/* The deck: one photo in the middle, the next ones waiting at the sides. */
+.deck .card { position: absolute; left: 50%; top: 50%; height: 72vh; aspect-ratio: 3 / 4; transform: translate(-50%, -50%); will-change: transform; }
+.deck img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Tablet: a quarter down instead of a third, as on the text version. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .text, .end { padding-top: 25vh; padding-bottom: 25vh; }
+  .text + .text { padding-top: 0; }
+  .title .line { top: 25%; }
+  .wall { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Phone: text from the top-left corner, one column. The left half of a split has no room: its photos join the column. */
+@media (max-width: 767px) {
+  .text, .end { padding-top: 50vh; padding-bottom: 50vh; }
+  .text + .text { padding-top: 0; }
+  .title .line { top: 16px; }
+  /* The pair stands up: one photo above the other. */
+  .duo { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; width: auto; height: min(86svh, 250vw); aspect-ratio: 3 / 8; }
+  .split { grid-template-columns: 1fr; }
+  .split .left { display: none; }
+  .split .right .phone-only { display: block; grid-column: 1 / -1; aspect-ratio: auto; }
+  .wall { grid-template-columns: repeat(3, 1fr); }
+  .deck .card { height: auto; width: 72vw; }
+}

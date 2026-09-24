@@ -1,0 +1,6 @@
+/* fonts.css — ABC Areal, the same files as the text version (see ../site/README.md, "The font").
+   The font has no Cyrillic: Ukrainian letters come from the visitor's own sans-serif. */
+@font-face { font-family: "ABC Areal"; font-weight: 400; font-style: normal; font-display: swap;
+  src: url("fonts/ABCAreal-Regular.woff2") format("woff2"); }
+@font-face { font-family: "ABC Areal"; font-weight: 400; font-style: italic; font-display: swap;
+  src: url("fonts/ABCAreal-RegularItalic.woff2") format("woff2"); }
