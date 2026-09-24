@@ -51,7 +51,16 @@
     }).join(', ');
     return img;
   }
-  function wake(img) { if (img && img.dataset && img.dataset.srcset) { img.srcset = img.dataset.srcset; delete img.dataset.srcset; } }
+  /* A file the server fails to give (now and then it does, most often right after the site is updated) is asked
+     for once more a moment later, at a slightly different address so the browser really asks again. */
+  function wake(img) {
+    if (!img || !img.dataset || !img.dataset.srcset) return;
+    img.srcset = img.dataset.srcset;
+    delete img.dataset.srcset;
+    img.addEventListener('error', function () {
+      setTimeout(function () { img.srcset = img.srcset.replace(/\.jpg /g, '.jpg?again '); }, 1500);
+    }, { once: true });
+  }
 
   /* Photos that take turns in one place (full, a pair's two places, the left of a split) are a stack. show()
      puts the new photo on top and keeps the old one under it until the new one is decoded and ready to paint:
