@@ -1,6 +1,7 @@
 /* The photo version, top to bottom. Photos are numbered by the date they were taken (1 is the oldest;
    see data.js). Types: title, text, full (one photo at a time, as tall as the screen), pair (two photos
-   side by side, replaced in turn), split (a photo that stays on the left, a column going by on the right),
+   side by side, replaced in turn), split (a photo that stays on the left, a column going by on the right;
+   on a phone the left ones join the column full width, and so do the right ones listed in "wide"),
    wall ("rest": every photo not used elsewhere), deck, video (made by tools/video.py), end, hidden (photos
    left out of the page, so the wall doesn't take them). "4-11" means 4 to 11. In text a blank line starts
    a paragraph, [words](address) is a link.
@@ -75,6 +76,9 @@ window.STORY = [
    32,
    "34-38",
    "40-49"
+  ],
+  "wide": [
+   "47-49"
   ]
  },
  {

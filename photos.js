@@ -189,7 +189,8 @@
 
     /* Half and half: on the left one photo at a time, changing as you go; on the right a column goes by.
        On a phone the left half has no room, so its photos join the column, full width, each after a whole
-       pair of small ones (after an odd one there'd be a hole beside it); an odd last one goes full width too.
+       pair of small ones (after an odd one there'd be a hole beside it). The right ones listed in "wide" are
+       full width there too, and so is the last of any run of small ones that doesn't end in a whole pair.
        A full-width photo keeps its own proportions, and its place is kept before it has loaded. */
     split: function (s, sec) {
       sec.className = 'split';
@@ -201,18 +202,23 @@
         return img;
       });
       stack.shown = stack[0];
+      var wides = expand(s.wide), run = [];
       function wide(img, cls) {
         img.style.setProperty('--ratio', img.getAttribute('width') + ' / ' + img.getAttribute('height'));
         img.classList.add(cls);
-        return plan(col.appendChild(img), sec, null);
+        if (cls === 'phone-wide') img.sizes = '(max-width: 767px) 100vw, 25vw';
+        return img;
       }
+      function pairUp() { if (run.length % 2) wide(run[run.length - 1], 'phone-wide'); run = []; }
+      function left(j) { pairUp(); plan(col.appendChild(wide(photo(lefts[j], ['s', 'm'], '100vw'), 'phone-only')), sec, null); }
       var at = lefts.map(function (k, j) { return 2 * Math.round(j * rights.length / 2 / lefts.length); });
       rights.forEach(function (k, i) {
-        at.forEach(function (a, j) { if (a === i) wide(photo(lefts[j], ['s', 'm'], '100vw'), 'phone-only'); });
-        if (i === rights.length - 1 && i % 2 === 0) wide(photo(k, ['s', 'm'], '(max-width: 767px) 100vw, 25vw'), 'phone-wide');
-        else plan(col.appendChild(photo(k, ['s', 'm'], '(max-width: 767px) 50vw, 25vw')), sec, null);
+        at.forEach(function (a, j) { if (a === i) left(j); });
+        var img = plan(col.appendChild(photo(k, ['s', 'm'], '(max-width: 767px) 50vw, 25vw')), sec, null);
+        if (wides.indexOf(k) >= 0) { pairUp(); wide(img, 'phone-wide'); } else run.push(img);
       });
-      at.forEach(function (a, j) { if (a >= rights.length) wide(photo(lefts[j], ['s', 'm'], '100vw'), 'phone-only'); });
+      at.forEach(function (a, j) { if (a >= rights.length) left(j); });
+      pairUp();
       return function (p) {
         var k = Math.min(stack.length - 1, Math.floor(p * stack.length));
         show(stack, k);
