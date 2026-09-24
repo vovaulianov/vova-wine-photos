@@ -187,7 +187,10 @@
       };
     },
 
-    /* Half and half: on the left one photo at a time, changing as you go; on the right a column goes by. */
+    /* Half and half: on the left one photo at a time, changing as you go; on the right a column goes by.
+       On a phone the left half has no room, so its photos join the column, full width, each after a whole
+       pair of small ones (after an odd one there'd be a hole beside it); an odd last one goes full width too.
+       A full-width photo keeps its own proportions, and its place is kept before it has loaded. */
     split: function (s, sec) {
       sec.className = 'split';
       var lefts = expand(s.left), rights = expand(s.right);
@@ -198,11 +201,18 @@
         return img;
       });
       stack.shown = stack[0];
-      var every = Math.max(1, Math.round(rights.length / Math.max(1, lefts.length)));
+      function wide(img, cls) {
+        img.style.setProperty('--ratio', img.getAttribute('width') + ' / ' + img.getAttribute('height'));
+        img.classList.add(cls);
+        return plan(col.appendChild(img), sec, null);
+      }
+      var at = lefts.map(function (k, j) { return 2 * Math.round(j * rights.length / 2 / lefts.length); });
       rights.forEach(function (k, i) {
-        if (i % every === 0 && lefts[i / every] != null) plan(col.appendChild(photo(lefts[i / every], ['s', 'm'], '100vw')), sec, null).classList.add('phone-only');
-        plan(col.appendChild(photo(k, ['s', 'm'], '(max-width: 767px) 50vw, 25vw')), sec, null);
+        at.forEach(function (a, j) { if (a === i) wide(photo(lefts[j], ['s', 'm'], '100vw'), 'phone-only'); });
+        if (i === rights.length - 1 && i % 2 === 0) wide(photo(k, ['s', 'm'], '(max-width: 767px) 100vw, 25vw'), 'phone-wide');
+        else plan(col.appendChild(photo(k, ['s', 'm'], '(max-width: 767px) 50vw, 25vw')), sec, null);
       });
+      at.forEach(function (a, j) { if (a >= rights.length) wide(photo(lefts[j], ['s', 'm'], '100vw'), 'phone-only'); });
       return function (p) {
         var k = Math.min(stack.length - 1, Math.floor(p * stack.length));
         show(stack, k);

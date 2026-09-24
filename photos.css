@@ -82,7 +82,8 @@ img { display: block; }
   .duo { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; width: auto; height: min(86svh, 250vw); aspect-ratio: 3 / 8; }
   .split { grid-template-columns: 1fr; }
   .split .left { display: none; }
-  .split .right .phone-only { display: block; grid-column: 1 / -1; aspect-ratio: auto; }
+  .split .right .phone-only { display: block; }
+  .split .right .phone-only, .split .right .phone-wide { grid-column: 1 / -1; aspect-ratio: var(--ratio, auto); }
   .wall { grid-template-columns: repeat(3, 1fr); }
   .deck .card { height: auto; width: 72vw; }
 }
